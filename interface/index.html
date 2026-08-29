@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Conversor</title>
+<style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+        --bg: #0f0f0f;
+        --surface: #1a1a1a;
+        --surface-2: #222;
+        --border: #2d2d2d;
+        --text: #e8e8e8;
+        --text-muted: #999;
+        --accent: #3b82f6;
+        --accent-hover: #2563eb;
+        --success: #10b981;
+        --error: #ef4444;
+    }
+
+    html, body { height: 100%; }
+
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+        background:
+            radial-gradient(ellipse 900px 560px at 50% 32%, rgba(59,130,246,.10), transparent 65%),
+            var(--bg);
+        color: var(--text);
+        line-height: 1.5;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .tela {
+        flex: 1 1 auto;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 40px 20px;
+        overflow-y: auto;
+    }
+
+    .app { max-width: 480px; width: 100%; }
+
+    /* Rodapé (placeholder de marca) */
+    .rodape-marca {
+        flex-shrink: 0;
+        text-align: center;
+        padding: 14px;
+        font-size: 13px;
+        letter-spacing: 1px;
+        color: var(--text-muted);
+        opacity: .5;
+    }
+
+    /* Link + painel "todas as conversões disponíveis" */
+    .link-conversoes {
+        display: block;
+        width: 100%;
+        background: none;
+        border: none;
+        color: var(--text-muted);
+        font-size: 12px;
+        padding: 12px 0 4px;
+        cursor: pointer;
+        text-align: center;
+    }
+    .link-conversoes:hover { color: var(--accent); }
+
+    .painel-conversoes {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 16px 18px;
+        margin-top: 8px;
+        font-size: 12px;
+    }
+    .painel-conversoes.oculto { display: none; }
+    .grupo-conversoes h4 {
+        font-size: 10px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: .6px;
+        color: var(--text-muted);
+        margin: 14px 0 6px;
+    }
+    .grupo-conversoes:first-child h4 { margin-top: 0; }
+    .linha-conversao {
+        padding: 5px 0;
+        border-bottom: 1px solid var(--border);
+        color: var(--text);
+    }
+    .linha-conversao:last-child { border-bottom: none; }
+    .linha-conversao b { color: var(--accent); }
+
+    h1 { font-size: 20px; font-weight: 600; margin-bottom: 16px; text-align: center; }
+
+    /* Abas */
+    .tabs {
+        display: flex;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 4px;
+        margin-bottom: 24px;
+    }
+    .tab {
+        flex: 1;
+        padding: 10px;
+        text-align: center;
+        border: none;
+        background: transparent;
+        color: var(--text-muted);
+        font-size: 14px;
+        font-weight: 600;
+        border-radius: 7px;
+        cursor: pointer;
+        transition: all .15s;
+    }
+    .tab.ativa { background: var(--accent); color: #fff; }
+    .tab:not(.ativa):hover { color: var(--text); }
+
+    /* Passos */
+    .passo {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 18px;
+        margin-bottom: 14px;
+    }
+    .passo.desabilitado { opacity: .45; pointer-events: none; }
+
+    .passo-titulo {
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: .6px;
+        color: var(--text-muted);
+        margin-bottom: 12px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .passo-num {
+        width: 18px; height: 18px;
+        background: var(--border);
+        border-radius: 50%;
+        display: inline-flex; align-items: center; justify-content: center;
+        font-size: 10px; color: var(--text);
+    }
+
+    /* Botão principal de entrada */
+    .btn-entrada {
+        width: 100%;
+        padding: 16px;
+        background: var(--surface-2);
+        border: 1.5px dashed var(--border);
+        border-radius: 8px;
+        color: var(--text-muted);
+        font-size: 14px;
+        cursor: pointer;
+        transition: all .15s;
+        text-align: center;
+    }
+    .btn-entrada:hover { border-color: var(--accent); color: var(--text); }
+
+    .arquivo-info {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        padding: 12px 14px;
+        background: var(--surface-2);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+    }
+    .arquivo-info-nome { font-size: 13px; font-weight: 600; word-break: break-all; }
+    .arquivo-info-meta { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+    .btn-trocar {
+        flex-shrink: 0;
+        background: none;
+        border: 1px solid var(--border);
+        color: var(--text-muted);
+        border-radius: 6px;
+        padding: 6px 10px;
+        font-size: 12px;
+        cursor: pointer;
+    }
+    .btn-trocar:hover { color: var(--text); border-color: var(--text-muted); }
+
+    .sugestao-troca {
+        margin-top: 10px;
+        font-size: 12px;
+        color: var(--text-muted);
+        background: var(--surface-2);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        padding: 8px 10px;
+    }
+    .sugestao-troca a { color: var(--accent); cursor: pointer; font-weight: 600; }
+
+    /* Chips de saída */
+    .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+    .chip {
+        padding: 10px 16px;
+        background: var(--surface-2);
+        border: 1px solid var(--border);
+        border-radius: 7px;
+        color: var(--text);
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all .15s;
+    }
+    .chip:hover { border-color: var(--accent); background: rgba(59,130,246,.1); }
+    .chip.secundario { color: var(--text-muted); font-weight: 500; }
+    .chip.ativo { background: var(--accent); border-color: var(--accent); color: #fff; }
+    .placeholder-saida { font-size: 13px; color: var(--text-muted); }
+
+    /* Painel de parâmetros (comprimir/redimensionar) */
+    .painel-param {
+        margin-top: 12px;
+        padding: 14px;
+        background: var(--surface-2);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+    }
+    .campo { margin-bottom: 12px; }
+    .campo label { display: block; font-size: 12px; color: var(--text-muted); margin-bottom: 6px; }
+    .campo input[type=range] { width: 100%; }
+    .campo-row { display: flex; gap: 10px; }
+    .campo-row .campo { flex: 1; margin-bottom: 0; }
+    input[type=number] {
+        width: 100%;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        color: var(--text);
+        padding: 8px 10px;
+        font-size: 13px;
+    }
+    .checkbox-row { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; font-size: 13px; }
+    .btn-executar {
+        width: 100%;
+        padding: 10px;
+        background: var(--accent);
+        border: none;
+        border-radius: 6px;
+        color: #fff;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+    }
+    .btn-executar:hover { background: var(--accent-hover); }
+    .btn-executar:disabled { opacity: .5; cursor: default; }
+
+    /* Resultado */
+    .resultado {
+        border-radius: 10px;
+        padding: 16px 18px;
+        margin-top: 14px;
+        border-left: 4px solid var(--success);
+        background: var(--surface);
+    }
+    .resultado.erro { border-left-color: var(--error); }
+    .resultado-titulo { font-size: 13px; font-weight: 700; margin-bottom: 4px; }
+    .resultado.erro .resultado-titulo { color: var(--error); }
+    .resultado:not(.erro) .resultado-titulo { color: var(--success); }
+    .resultado-detalhe { font-size: 12px; color: var(--text-muted); word-break: break-all; margin-bottom: 12px; }
+    .resultado-acoes { display: flex; gap: 8px; flex-wrap: wrap; }
+    .btn-mini {
+        padding: 7px 12px;
+        background: var(--surface-2);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        color: var(--text);
+        font-size: 12px;
+        cursor: pointer;
+    }
+    .btn-mini:hover { border-color: var(--accent); }
+    .btn-mini.principal { background: var(--accent); border-color: var(--accent); }
+
+    .carregando { font-size: 13px; color: var(--text-muted); }
+
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+</style>
+</head>
+<body>
+<div class="tela">
+    <div class="app">
+        <h1>Conversor</h1>
+
+        <div class="tabs">
+            <button class="tab ativa" id="tabArquivo" onclick="trocarAba('arquivo')">📄 Arquivos</button>
+            <button class="tab" id="tabImagem" onclick="trocarAba('imagem')">🖼️ Imagens</button>
+        </div>
+
+        <div id="conteudo"></div>
+
+        <button class="link-conversoes" id="linkConversoes" onclick="toggleConversoes()">Ver todas as conversões disponíveis</button>
+        <div class="painel-conversoes oculto" id="painelConversoes"></div>
+    </div>
+</div>
+
+<!-- placeholder de marca — troque o ₢ pelo que quiser depois -->
+<footer class="rodape-marca">© ink-creator</footer>
+
+<script>
+// ==================== Mapa de conversões (espelha a Api em app.py) ====================
+const MAPA_ARQUIVO = {
+    txt:  ['pdf', 'docx'],
+    pdf:  ['txt', 'docx'],
+    docx: ['txt', 'pdf'],
+    html: ['pdf', 'txt'],
+    htm:  ['pdf', 'txt'],
+    rtf:  ['txt'],
+    csv:  ['json', 'xml', 'xlsx'],
+    json: ['csv', 'xml', 'xlsx', 'yaml'],
+    xml:  ['csv', 'json', 'yaml'],
+    xlsx: ['csv', 'json'],
+    yaml: ['json', 'xml'],
+    yml:  ['json', 'xml'],
+};
+const FORMATOS_IMAGEM = ['png', 'jpg', 'jpeg', 'webp', 'bmp', 'gif'];
+
+function normalizaExt(ext) {
+    if (ext === 'htm') return 'html';
+    if (ext === 'yml') return 'yaml';
+    return ext;
+}
+function nomeMetodo(origem, destino) {
+    return `converter_${normalizaExt(origem)}_${normalizaExt(destino)}`;
+}
+function extensao(caminho) {
+    const m = caminho.match(/\.([a-zA-Z0-9]+)$/);
+    return m ? m[1].toLowerCase() : '';
+}
+function nomeArquivo(caminho) {
+    return caminho.split(/[\\/]/).pop();
+}
+
+// ==================== Estado ====================
+let abaAtiva = 'arquivo';
+const estado = {
+    arquivo: { entrada: null, info: null, resultado: null, carregando: false },
+    imagem:  { entrada: null, info: null, resultado: null, carregando: false, acao: null },
+};
+
+function trocarAba(aba) {
+    abaAtiva = aba;
+    document.getElementById('tabArquivo').classList.toggle('ativa', aba === 'arquivo');
+    document.getElementById('tabImagem').classList.toggle('ativa', aba === 'imagem');
+    render();
+}
+
+function trocarComEntrada(aba, caminho, info) {
+    estado[aba].entrada = caminho;
+    estado[aba].info = info;
+    estado[aba].resultado = null;
+    trocarAba(aba);
+}
+
+function resetar(aba) {
+    estado[aba] = { entrada: null, info: null, resultado: null, carregando: false, acao: null };
+    render();
+}
+
+// ==================== Seleção de entrada ====================
+async function selecionarEntrada(aba) {
+    const caminho = await window.pywebview.api.selecionar_arquivo(aba);
+    if (!caminho) return;
+
+    const info = await window.pywebview.api.obter_info_arquivo(caminho);
+    estado[aba].entrada = caminho;
+    estado[aba].info = info;
+    estado[aba].resultado = null;
+    estado[aba].acao = null;
+    render();
+}
+
+// ==================== Execução ====================
+async function executarConversaoArquivo(destino) {
+    const s = estado.arquivo;
+    const origem = extensao(s.entrada);
+    const metodo = nomeMetodo(origem, destino);
+
+    s.carregando = true; render();
+    try {
+        const r = await window.pywebview.api[metodo](s.entrada);
+        s.resultado = r;
+    } catch (e) {
+        s.resultado = { sucesso: false, erro: String(e) };
+    }
+    s.carregando = false;
+    render();
+}
+
+async function executarConversaoImagem(formato) {
+    const s = estado.imagem;
+    s.carregando = true; render();
+    try {
+        const r = await window.pywebview.api.converter_imagem(s.entrada, formato);
+        s.resultado = r;
+    } catch (e) {
+        s.resultado = { sucesso: false, erro: String(e) };
+    }
+    s.carregando = false;
+    render();
+}
+
+async function executarCompressao() {
+    const s = estado.imagem;
+    const qualidade = document.getElementById('inQualidade').value;
+    s.carregando = true; render();
+    try {
+        const r = await window.pywebview.api.comprimir_imagem(s.entrada, parseInt(qualidade));
+        s.resultado = r;
+    } catch (e) {
+        s.resultado = { sucesso: false, erro: String(e) };
+    }
+    s.carregando = false;
+    render();
+}
+
+async function executarRedimensionamento() {
+    const s = estado.imagem;
+    const largura = document.getElementById('inLargura').value;
+    const altura = document.getElementById('inAltura').value;
+    const manter = document.getElementById('inManterProp').checked;
+    if (!largura || !altura) return;
+
+    s.carregando = true; render();
+    try {
+        const r = await window.pywebview.api.redimensionar_imagem(s.entrada, parseInt(largura), parseInt(altura), manter);
+        s.resultado = r;
+    } catch (e) {
+        s.resultado = { sucesso: false, erro: String(e) };
+    }
+    s.carregando = false;
+    render();
+}
+
+async function abrirArquivo(caminho) { await window.pywebview.api.abrir_arquivo(caminho); }
+async function abrirPasta(caminho) { await window.pywebview.api.abrir_pasta(caminho); }
+
+// ==================== Render ====================
+function fmtKB(bytes) { return (bytes / 1024).toFixed(1) + ' KB'; }
+
+function render() {
+    document.getElementById('conteudo').innerHTML =
+        abaAtiva === 'arquivo' ? renderTela('arquivo') : renderTela('imagem');
+}
+
+function renderTela(aba) {
+    const s = estado[aba];
+    const outraAba = aba === 'arquivo' ? 'imagem' : 'arquivo';
+
+    let html = '';
+
+    // ---- Passo 1: Entrada ----
+    html += `<div class="passo">
+        <div class="passo-titulo"><span class="passo-num">1</span> Entrada</div>`;
+
+    if (!s.entrada) {
+        html += `<button class="btn-entrada" onclick="selecionarEntrada('${aba}')">
+            ${aba === 'arquivo' ? '📄 Selecionar arquivo' : '🖼️ Selecionar imagem'}
+        </button>`;
+    } else {
+        const ext = extensao(s.entrada);
+        html += `<div class="arquivo-info">
+            <div>
+                <div class="arquivo-info-nome">${nomeArquivo(s.entrada)}</div>
+                <div class="arquivo-info-meta">.${ext.toUpperCase()}${s.info && !s.info.erro ? ' · ' + s.info.tamanho_formatado : ''}</div>
+            </div>
+            <button class="btn-trocar" onclick="selecionarEntrada('${aba}')">Trocar</button>
+        </div>`;
+
+        // Sugestão de trocar de aba se o tipo não bate com a aba atual
+        const outroMapaTemExt = outraAba === 'imagem' ? FORMATOS_IMAGEM.includes(ext) : !!MAPA_ARQUIVO[ext];
+        const abaMapaTemExt = aba === 'imagem' ? FORMATOS_IMAGEM.includes(ext) : !!MAPA_ARQUIVO[ext];
+        if (!abaMapaTemExt && outroMapaTemExt) {
+            html += `<div class="sugestao-troca">
+                Isso parece ser ${outraAba === 'imagem' ? 'uma imagem' : 'um arquivo de documento/dados'}.
+                <a onclick="trocarComEntrada('${outraAba}', estado['${aba}'].entrada, estado['${aba}'].info)">Trocar para a aba ${outraAba === 'imagem' ? 'Imagens' : 'Arquivos'}</a>
+            </div>`;
+        }
+    }
+    html += `</div>`;
+
+    // ---- Passo 2: Saída ----
+    html += `<div class="passo ${!s.entrada ? 'desabilitado' : ''}">
+        <div class="passo-titulo"><span class="passo-num">2</span> Saída</div>`;
+
+    if (s.carregando) {
+        html += `<div class="carregando">Convertendo…</div>`;
+    } else if (aba === 'arquivo') {
+        html += renderSaidaArquivo(s);
+    } else {
+        html += renderSaidaImagem(s);
+    }
+    html += `</div>`;
+
+    // ---- Resultado ----
+    if (s.resultado) {
+        const r = s.resultado;
+        if (r.sucesso) {
+            html += `<div class="resultado">
+                <div class="resultado-titulo">✓ Convertido com sucesso</div>
+                <div class="resultado-detalhe">${nomeArquivo(r.arquivo)}${r.tamanho ? ' · ' + fmtKB(r.tamanho) : ''}${r.reducao_percentual !== undefined ? ' · redução de ' + r.reducao_percentual + '%' : ''}</div>
+                <div class="resultado-acoes">
+                    <button class="btn-mini principal" onclick="abrirArquivo('${r.arquivo.replace(/\\/g, '\\\\')}')">Abrir arquivo</button>
+                    <button class="btn-mini" onclick="abrirPasta('${r.arquivo.replace(/\\/g, '\\\\')}')">Abrir pasta</button>
+                    <button class="btn-mini" onclick="resetar('${aba}')">Nova conversão</button>
+                </div>
+            </div>`;
+        } else {
+            html += `<div class="resultado erro">
+                <div class="resultado-titulo">✗ Erro</div>
+                <div class="resultado-detalhe">${r.erro || 'Falha desconhecida'}</div>
+                <div class="resultado-acoes">
+                    <button class="btn-mini" onclick="resetar('${aba}')">Tentar de novo</button>
+                </div>
+            </div>`;
+        }
+    }
+
+    return html;
+}
+
+function renderSaidaArquivo(s) {
+    if (!s.entrada) return `<div class="placeholder-saida">Selecione um arquivo de entrada primeiro.</div>`;
+    const ext = extensao(s.entrada);
+    const destinos = MAPA_ARQUIVO[normalizaExt(ext)];
+    if (!destinos) {
+        return `<div class="placeholder-saida">Formato .${ext} não é suportado nesta aba.</div>`;
+    }
+    return `<div class="chips">
+        ${destinos.map(d => `<button class="chip" onclick="executarConversaoArquivo('${d}')">→ ${d.toUpperCase()}</button>`).join('')}
+    </div>`;
+}
+
+function renderSaidaImagem(s) {
+    if (!s.entrada) return `<div class="placeholder-saida">Selecione uma imagem de entrada primeiro.</div>`;
+    const ext = extensao(s.entrada);
+    if (!FORMATOS_IMAGEM.includes(ext)) {
+        return `<div class="placeholder-saida">Formato .${ext} não é suportado nesta aba.</div>`;
+    }
+
+    let html = `<div class="chips">`;
+    FORMATOS_IMAGEM.filter(f => f !== ext).forEach(f => {
+        html += `<button class="chip" onclick="executarConversaoImagem('${f}')">→ ${f.toUpperCase()}</button>`;
+    });
+    html += `<button class="chip secundario ${s.acao === 'comprimir' ? 'ativo' : ''}" onclick="abrirAcaoImagem('comprimir')">Comprimir</button>`;
+    html += `<button class="chip secundario ${s.acao === 'redimensionar' ? 'ativo' : ''}" onclick="abrirAcaoImagem('redimensionar')">Redimensionar</button>`;
+    html += `</div>`;
+
+    if (s.acao === 'comprimir') {
+        html += `<div class="painel-param">
+            <div class="campo">
+                <label>Qualidade: <span id="qualidadeValor">85</span></label>
+                <input type="range" id="inQualidade" min="1" max="100" value="85"
+                    oninput="document.getElementById('qualidadeValor').textContent = this.value">
+            </div>
+            <button class="btn-executar" onclick="executarCompressao()">Comprimir imagem</button>
+        </div>`;
+    } else if (s.acao === 'redimensionar') {
+        html += `<div class="painel-param">
+            <div class="campo-row">
+                <div class="campo"><label>Largura (px)</label><input type="number" id="inLargura" min="1" placeholder="ex: 800"></div>
+                <div class="campo"><label>Altura (px)</label><input type="number" id="inAltura" min="1" placeholder="ex: 600"></div>
+            </div>
+            <div class="checkbox-row"><input type="checkbox" id="inManterProp" checked> <label for="inManterProp">Manter proporção</label></div>
+            <button class="btn-executar" onclick="executarRedimensionamento()">Redimensionar imagem</button>
+        </div>`;
+    }
+    return html;
+}
+
+function abrirAcaoImagem(acao) {
+    estado.imagem.acao = estado.imagem.acao === acao ? null : acao;
+    render();
+}
+
+// ==================== Painel "todas as conversões disponíveis" ====================
+// Gerado a partir do próprio MAPA_ARQUIVO/FORMATOS_IMAGEM (não é lista fixa
+// separada), então não tem como ficar desatualizado se um formato for adicionado.
+function construirPainelConversoes() {
+    const aliases = new Set(['htm', 'yml']); // já cobertos por html/yaml
+    const linhasArquivo = Object.entries(MAPA_ARQUIVO)
+        .filter(([origem]) => !aliases.has(origem))
+        .map(([origem, destinos]) =>
+            `<div class="linha-conversao"><b>${origem.toUpperCase()}</b> → ${destinos.map(d => d.toUpperCase()).join(', ')}</div>`
+        ).join('');
+
+    const linhaImagem = `<div class="linha-conversao"><b>${FORMATOS_IMAGEM.map(f => f.toUpperCase()).join(' / ')}</b> → entre si, + comprimir e redimensionar</div>`;
+
+    return `
+        <div class="grupo-conversoes"><h4>Documentos e dados</h4>${linhasArquivo}</div>
+        <div class="grupo-conversoes"><h4>Imagens</h4>${linhaImagem}</div>
+    `;
+}
+
+function toggleConversoes() {
+    const painel = document.getElementById('painelConversoes');
+    const aberto = painel.classList.toggle('oculto') === false;
+    document.getElementById('linkConversoes').textContent =
+        aberto ? 'Ocultar conversões disponíveis' : 'Ver todas as conversões disponíveis';
+}
+
+document.getElementById('painelConversoes').innerHTML = construirPainelConversoes();
+render();
+</script>
+</body>
+</html>
