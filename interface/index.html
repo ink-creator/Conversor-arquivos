@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Conversor</title>
+<title>Conversor de Arquivos</title>
 <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -45,7 +45,14 @@
 
     .app { max-width: 480px; width: 100%; }
 
-    /* Rodapé (placeholder de marca) */
+    h1 {
+        font-size: 26px;
+        line-height: 1.2;
+        text-align: center;
+        margin-bottom: 24px;
+        letter-spacing: -.5px;
+    }
+
     .rodape-marca {
         flex-shrink: 0;
         text-align: center;
@@ -56,193 +63,158 @@
         opacity: .5;
     }
 
-    /* Link + painel "todas as conversões disponíveis" */
-    .link-conversoes {
-        display: block;
-        width: 100%;
-        background: none;
-        border: none;
-        color: var(--text-muted);
-        font-size: 12px;
-        padding: 12px 0 4px;
-        cursor: pointer;
-        text-align: center;
-    }
-    .link-conversoes:hover { color: var(--accent); }
-
-    .painel-conversoes {
-        background: var(--surface);
-        border: 1px solid var(--border);
-        border-radius: 10px;
-        padding: 16px 18px;
-        margin-top: 8px;
-        font-size: 12px;
-    }
-    .painel-conversoes.oculto { display: none; }
-    .grupo-conversoes h4 {
-        font-size: 10px;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: .6px;
-        color: var(--text-muted);
-        margin: 14px 0 6px;
-    }
-    .grupo-conversoes:first-child h4 { margin-top: 0; }
-    .linha-conversao {
-        padding: 5px 0;
-        border-bottom: 1px solid var(--border);
-        color: var(--text);
-    }
-    .linha-conversao:last-child { border-bottom: none; }
-    .linha-conversao b { color: var(--accent); }
-
-    h1 { font-size: 20px; font-weight: 600; margin-bottom: 16px; text-align: center; }
-
-    /* Abas */
     .tabs {
-        display: flex;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 6px;
+        padding: 5px;
+        margin-bottom: 16px;
         background: var(--surface);
         border: 1px solid var(--border);
         border-radius: 10px;
-        padding: 4px;
-        margin-bottom: 24px;
     }
+
     .tab {
-        flex: 1;
-        padding: 10px;
-        text-align: center;
-        border: none;
+        border: 0;
+        border-radius: 7px;
         background: transparent;
         color: var(--text-muted);
-        font-size: 14px;
+        padding: 10px 12px;
+        font-size: 13px;
         font-weight: 600;
-        border-radius: 7px;
         cursor: pointer;
-        transition: all .15s;
     }
-    .tab.ativa { background: var(--accent); color: #fff; }
-    .tab:not(.ativa):hover { color: var(--text); }
+    .tab:hover { color: var(--text); }
+    .tab.ativa { color: #fff; background: var(--surface-2); }
 
-    /* Passos */
     .passo {
         background: var(--surface);
         border: 1px solid var(--border);
         border-radius: 10px;
-        padding: 18px;
-        margin-bottom: 14px;
+        padding: 16px 18px;
+        margin-bottom: 12px;
     }
-    .passo.desabilitado { opacity: .45; pointer-events: none; }
+    .passo.desabilitado { opacity: .55; }
 
     .passo-titulo {
-        font-size: 11px;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: .6px;
-        color: var(--text-muted);
-        margin-bottom: 12px;
         display: flex;
         align-items: center;
-        gap: 8px;
-    }
-    .passo-num {
-        width: 18px; height: 18px;
-        background: var(--border);
-        border-radius: 50%;
-        display: inline-flex; align-items: center; justify-content: center;
-        font-size: 10px; color: var(--text);
+        gap: 9px;
+        color: var(--text-muted);
+        font-size: 12px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: .06em;
+        margin-bottom: 13px;
     }
 
-    /* Botão principal de entrada */
+    .passo-num {
+        display: inline-grid;
+        place-items: center;
+        width: 21px;
+        height: 21px;
+        border-radius: 50%;
+        background: rgba(59,130,246,.14);
+        color: #8ab4ff;
+        font-size: 11px;
+    }
+
     .btn-entrada {
         width: 100%;
-        padding: 16px;
+        padding: 13px 14px;
         background: var(--surface-2);
-        border: 1.5px dashed var(--border);
+        border: 1px dashed #3a3a3a;
         border-radius: 8px;
-        color: var(--text-muted);
-        font-size: 14px;
+        color: var(--text);
+        font-size: 13px;
+        font-weight: 600;
         cursor: pointer;
-        transition: all .15s;
-        text-align: center;
     }
-    .btn-entrada:hover { border-color: var(--accent); color: var(--text); }
+    .btn-entrada:hover { border-color: var(--accent); }
 
     .arquivo-info {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        gap: 10px;
-        padding: 12px 14px;
-        background: var(--surface-2);
-        border: 1px solid var(--border);
-        border-radius: 8px;
+        gap: 14px;
     }
-    .arquivo-info-nome { font-size: 13px; font-weight: 600; word-break: break-all; }
-    .arquivo-info-meta { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+    .arquivo-info > div { min-width: 0; }
+    .arquivo-info-nome {
+        font-size: 13px;
+        font-weight: 650;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .arquivo-info-meta { margin-top: 2px; color: var(--text-muted); font-size: 11px; }
+
     .btn-trocar {
-        flex-shrink: 0;
-        background: none;
-        border: 1px solid var(--border);
-        color: var(--text-muted);
-        border-radius: 6px;
+        flex: 0 0 auto;
         padding: 6px 10px;
-        font-size: 12px;
+        border-radius: 6px;
+        border: 1px solid var(--border);
+        background: transparent;
+        color: var(--text-muted);
+        font-size: 11px;
         cursor: pointer;
     }
-    .btn-trocar:hover { color: var(--text); border-color: var(--text-muted); }
+    .btn-trocar:hover { color: var(--text); border-color: #444; }
 
     .sugestao-troca {
-        margin-top: 10px;
-        font-size: 12px;
+        margin-top: 12px;
+        padding: 10px 11px;
+        border-radius: 7px;
+        background: rgba(59,130,246,.08);
         color: var(--text-muted);
-        background: var(--surface-2);
-        border: 1px solid var(--border);
-        border-radius: 6px;
-        padding: 8px 10px;
+        font-size: 11px;
     }
-    .sugestao-troca a { color: var(--accent); cursor: pointer; font-weight: 600; }
+    .sugestao-troca a { color: #75a7ff; cursor: pointer; text-decoration: none; }
+    .sugestao-troca a:hover { text-decoration: underline; }
 
-    /* Chips de saída */
+    .placeholder-saida { color: var(--text-muted); font-size: 12px; }
+
     .chips { display: flex; flex-wrap: wrap; gap: 8px; }
     .chip {
-        padding: 10px 16px;
-        background: var(--surface-2);
         border: 1px solid var(--border);
         border-radius: 7px;
+        padding: 8px 11px;
+        background: var(--surface-2);
         color: var(--text);
-        font-size: 13px;
-        font-weight: 600;
+        font-size: 12px;
         cursor: pointer;
-        transition: all .15s;
     }
-    .chip:hover { border-color: var(--accent); background: rgba(59,130,246,.1); }
-    .chip.secundario { color: var(--text-muted); font-weight: 500; }
-    .chip.ativo { background: var(--accent); border-color: var(--accent); color: #fff; }
-    .placeholder-saida { font-size: 13px; color: var(--text-muted); }
+    .chip:hover { border-color: var(--accent); }
+    .chip.secundario { color: #b8c8e4; }
+    .chip.secundario.ativo { border-color: var(--accent); background: rgba(59,130,246,.12); }
 
-    /* Painel de parâmetros (comprimir/redimensionar) */
     .painel-param {
         margin-top: 12px;
-        padding: 14px;
-        background: var(--surface-2);
-        border: 1px solid var(--border);
-        border-radius: 8px;
+        border-top: 1px solid var(--border);
+        padding-top: 13px;
     }
-    .campo { margin-bottom: 12px; }
-    .campo label { display: block; font-size: 12px; color: var(--text-muted); margin-bottom: 6px; }
-    .campo input[type=range] { width: 100%; }
-    .campo-row { display: flex; gap: 10px; }
-    .campo-row .campo { flex: 1; margin-bottom: 0; }
-    input[type=number] {
+    .campo { display: grid; gap: 6px; margin-bottom: 10px; }
+    .campo label, .checkbox-row label { font-size: 11px; color: var(--text-muted); }
+    .campo-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .campo input[type="number"] {
         width: 100%;
-        background: var(--surface);
+        background: #131313;
         border: 1px solid var(--border);
         border-radius: 6px;
         color: var(--text);
-        padding: 8px 10px;
-        font-size: 13px;
+        padding: 8px 9px;
+        outline: none;
     }
-    .checkbox-row { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; font-size: 13px; }
+    .campo input[type="number"]:focus { border-color: var(--accent); }
+    .campo input[type="range"] { width: 100%; accent-color: var(--accent); }
+
+    .checkbox-row {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        margin: 3px 0 11px;
+    }
+    .checkbox-row input { accent-color: var(--accent); }
+
     .btn-executar {
         width: 100%;
         padding: 10px;
@@ -257,7 +229,6 @@
     .btn-executar:hover { background: var(--accent-hover); }
     .btn-executar:disabled { opacity: .5; cursor: default; }
 
-    /* Resultado */
     .resultado {
         border-radius: 10px;
         padding: 16px 18px;
@@ -271,6 +242,7 @@
     .resultado:not(.erro) .resultado-titulo { color: var(--success); }
     .resultado-detalhe { font-size: 12px; color: var(--text-muted); word-break: break-all; margin-bottom: 12px; }
     .resultado-acoes { display: flex; gap: 8px; flex-wrap: wrap; }
+
     .btn-mini {
         padding: 7px 12px;
         background: var(--surface-2);
@@ -283,16 +255,158 @@
     .btn-mini:hover { border-color: var(--accent); }
     .btn-mini.principal { background: var(--accent); border-color: var(--accent); }
 
-    .carregando { font-size: 13px; color: var(--text-muted); }
+    .carregando {
+        margin-top: 14px;
+        padding: 12px 14px;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        font-size: 13px;
+        color: var(--text-muted);
+    }
+
+    .link-conversoes {
+        display: block;
+        width: 100%;
+        background: none;
+        border: none;
+        color: var(--text-muted);
+        font-size: 12px;
+        padding: 12px 0 4px;
+        cursor: pointer;
+        text-align: center;
+    }
+    .link-conversoes:hover { color: var(--accent); }
+
+    .painel-conversoes {
+        margin-top: 8px;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 14px 16px;
+        font-size: 11px;
+        color: var(--text-muted);
+    }
+    .painel-conversoes.oculto { display: none; }
+    .grupo-conversoes + .grupo-conversoes { margin-top: 13px; }
+    .grupo-conversoes h4 { color: var(--text); font-size: 11px; margin-bottom: 6px; }
+    .linha-conversao { padding: 3px 0; }
+    .linha-conversao b { color: #c6d1e5; }
 
     ::-webkit-scrollbar { width: 8px; }
     ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+    @media (max-width: 520px) {
+        .tela { padding: 24px 14px; align-items: flex-start; }
+        .campo-row { grid-template-columns: 1fr; gap: 0; }
+    }
+
+
+    .cabecalho-app {
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 42px;
+        margin-bottom: 24px;
+    }
+    .cabecalho-app h1 { margin-bottom: 0; padding: 0 52px; }
+
+    .btn-config {
+        position: absolute;
+        right: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 38px;
+        height: 38px;
+        display: grid;
+        place-items: center;
+        border: 1px solid var(--border);
+        border-radius: 9px;
+        background: var(--surface);
+        color: var(--text-muted);
+        font-size: 18px;
+        cursor: pointer;
+    }
+    .btn-config:hover { color: var(--text); border-color: #444; background: var(--surface-2); }
+
+    .modal-config {
+        position: fixed;
+        inset: 0;
+        z-index: 1000;
+        display: grid;
+        place-items: center;
+        padding: 20px;
+        background: rgba(0, 0, 0, .62);
+        backdrop-filter: blur(4px);
+    }
+    .modal-config.oculto { display: none; }
+
+    .config-card {
+        width: min(390px, 100%);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        background: #171717;
+        box-shadow: 0 24px 80px rgba(0,0,0,.42);
+        padding: 18px;
+    }
+    .config-topo {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 14px;
+        margin-bottom: 18px;
+    }
+    .config-topo h2 { font-size: 17px; margin-bottom: 3px; }
+    .config-subtitulo { color: var(--text-muted); font-size: 11px; }
+    .btn-fechar-config {
+        width: 30px;
+        height: 30px;
+        border: 1px solid var(--border);
+        border-radius: 7px;
+        background: transparent;
+        color: var(--text-muted);
+        cursor: pointer;
+        font-size: 18px;
+        line-height: 1;
+    }
+    .btn-fechar-config:hover { color: var(--text); background: var(--surface-2); }
+
+    .config-label {
+        display: block;
+        margin-bottom: 9px;
+        color: var(--text-muted);
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: .06em;
+    }
+    .idiomas { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .idioma-btn {
+        display: grid;
+        gap: 2px;
+        padding: 11px 12px;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        background: var(--surface-2);
+        color: var(--text);
+        text-align: left;
+        cursor: pointer;
+    }
+    .idioma-btn:hover { border-color: #4a4a4a; }
+    .idioma-btn.ativo { border-color: var(--accent); background: rgba(59,130,246,.12); }
+    .idioma-btn strong { font-size: 12px; }
+    .idioma-btn span { color: var(--text-muted); font-size: 10px; }
+
 </style>
 </head>
 <body>
 <div class="tela">
     <div class="app">
-        <h1>Conversor</h1>
+        <div class="cabecalho-app">
+            <h1 id="appTitle">Conversor de Arquivos</h1>
+            <button class="btn-config" id="btnConfig" type="button" onclick="abrirConfiguracoes()" aria-label="Configurações" title="Configurações">⚙</button>
+        </div>
 
         <div class="tabs">
             <button class="tab ativa" id="tabArquivo" onclick="trocarAba('arquivo')">📄 Arquivos</button>
@@ -306,11 +420,33 @@
     </div>
 </div>
 
-<!-- placeholder de marca — troque o ₢ pelo que quiser depois -->
+<div class="modal-config oculto" id="modalConfig" role="dialog" aria-modal="true" aria-labelledby="configTitulo">
+    <div class="config-card">
+        <div class="config-topo">
+            <div>
+                <h2 id="configTitulo">Configurações</h2>
+                <div class="config-subtitulo" id="configSubtitulo">Personalize o aplicativo.</div>
+            </div>
+            <button class="btn-fechar-config" id="btnFecharConfig" type="button" onclick="fecharConfiguracoes()" aria-label="Fechar configurações">×</button>
+        </div>
+
+        <span class="config-label" id="configIdiomaLabel">Idioma</span>
+        <div class="idiomas">
+            <button class="idioma-btn" id="idiomaPt" type="button" onclick="definirIdioma('pt')">
+                <strong id="idiomaPtNome">Português</strong>
+                <span id="idiomaPtSub">Português (Brasil)</span>
+            </button>
+            <button class="idioma-btn" id="idiomaEn" type="button" onclick="definirIdioma('en')">
+                <strong id="idiomaEnNome">English</strong>
+                <span id="idiomaEnSub">English</span>
+            </button>
+        </div>
+    </div>
+</div>
+
 <footer class="rodape-marca">© ink-creator</footer>
 
 <script>
-// ==================== Mapa de conversões (espelha a Api em app.py) ====================
 const MAPA_ARQUIVO = {
     txt:  ['pdf', 'docx'],
     pdf:  ['txt', 'docx'],
@@ -326,29 +462,226 @@ const MAPA_ARQUIVO = {
     yml:  ['json', 'xml'],
 };
 const FORMATOS_IMAGEM = ['png', 'jpg', 'jpeg', 'webp', 'bmp', 'gif'];
+const STORAGE_LANGUAGE = 'fileConverter.language';
+
+const I18N = {
+    pt: {
+        pageTitle: 'Conversor de Arquivos',
+        appTitle: 'Conversor de Arquivos',
+        settings: 'Configurações',
+        settingsSubtitle: 'Personalize o aplicativo.',
+        language: 'Idioma',
+        portuguese: 'Português',
+        portugueseNative: 'Português (Brasil)',
+        english: 'English',
+        englishNative: 'English',
+        files: 'Arquivos',
+        images: 'Imagens',
+        input: 'Entrada',
+        output: 'Saída',
+        selectFile: '📄 Selecionar arquivo',
+        selectImage: '🖼️ Selecionar imagem',
+        change: 'Trocar',
+        looksLikeImage: 'Este arquivo parece ser uma imagem.',
+        looksLikeFile: 'Este arquivo parece ser um documento ou arquivo de dados.',
+        switchImages: 'Ir para a aba Imagens',
+        switchFiles: 'Ir para a aba Arquivos',
+        processing: 'Processando conversão…',
+        conversionComplete: '✓ Conversão concluída',
+        reduction: 'de redução',
+        openFile: 'Abrir arquivo',
+        openFolder: 'Abrir pasta',
+        newConversion: 'Nova conversão',
+        error: '✗ Erro',
+        unknownError: 'Erro desconhecido',
+        tryAgain: 'Tentar novamente',
+        selectInputFileFirst: 'Selecione primeiro um arquivo de entrada.',
+        selectInputImageFirst: 'Selecione primeiro uma imagem de entrada.',
+        formatNotSupported: ext => `O formato .${ext} não é suportado nesta aba.`,
+        compress: 'Comprimir',
+        resize: 'Redimensionar',
+        quality: 'Qualidade',
+        compressImage: 'Comprimir imagem',
+        width: 'Largura (px)',
+        height: 'Altura (px)',
+        exampleWidth: 'ex.: 800',
+        exampleHeight: 'ex.: 600',
+        keepAspect: 'Manter proporção',
+        resizeImage: 'Redimensionar imagem',
+        showConversions: 'Ver todas as conversões disponíveis',
+        hideConversions: 'Ocultar conversões disponíveis',
+        documentsData: 'Documentos e dados',
+        imagesGroup: 'Imagens',
+        imageConversions: 'converter entre formatos, além de comprimir e redimensionar',
+        closeSettings: 'Fechar configurações',
+    },
+    en: {
+        pageTitle: 'File Converter',
+        appTitle: 'File Converter',
+        settings: 'Settings',
+        settingsSubtitle: 'Customize the application.',
+        language: 'Language',
+        portuguese: 'Português',
+        portugueseNative: 'Português (Brasil)',
+        english: 'English',
+        englishNative: 'English',
+        files: 'Files',
+        images: 'Images',
+        input: 'Input',
+        output: 'Output',
+        selectFile: '📄 Select file',
+        selectImage: '🖼️ Select image',
+        change: 'Change',
+        looksLikeImage: 'This file looks like an image.',
+        looksLikeFile: 'This file looks like a document or data file.',
+        switchImages: 'Switch to the Images tab',
+        switchFiles: 'Switch to the Files tab',
+        processing: 'Processing conversion…',
+        conversionComplete: '✓ Conversion complete',
+        reduction: 'reduction',
+        openFile: 'Open file',
+        openFolder: 'Open folder',
+        newConversion: 'New conversion',
+        error: '✗ Error',
+        unknownError: 'Unknown error',
+        tryAgain: 'Try again',
+        selectInputFileFirst: 'Select an input file first.',
+        selectInputImageFirst: 'Select an input image first.',
+        formatNotSupported: ext => `Format .${ext} is not supported in this tab.`,
+        compress: 'Compress',
+        resize: 'Resize',
+        quality: 'Quality',
+        compressImage: 'Compress image',
+        width: 'Width (px)',
+        height: 'Height (px)',
+        exampleWidth: 'e.g. 800',
+        exampleHeight: 'e.g. 600',
+        keepAspect: 'Keep aspect ratio',
+        resizeImage: 'Resize image',
+        showConversions: 'View all available conversions',
+        hideConversions: 'Hide available conversions',
+        documentsData: 'Documents and data',
+        imagesGroup: 'Images',
+        imageConversions: 'convert between formats, plus compression and resizing',
+        closeSettings: 'Close settings',
+    },
+};
+
+function lerIdiomaSalvo() {
+    try {
+        const saved = localStorage.getItem(STORAGE_LANGUAGE);
+        return saved === 'en' ? 'en' : 'pt';
+    } catch (_) {
+        return 'pt';
+    }
+}
+
+let idiomaAtivo = lerIdiomaSalvo();
+let abaAtiva = 'arquivo';
+const estado = {
+    arquivo: { entrada: null, info: null, resultado: null, carregando: false },
+    imagem:  { entrada: null, info: null, resultado: null, carregando: false, acao: null },
+};
+
+function t(key, ...args) {
+    const value = I18N[idiomaAtivo][key];
+    return typeof value === 'function' ? value(...args) : value;
+}
+
+function escapeHtml(value) {
+    return String(value ?? '')
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#039;');
+}
+
+function salvarIdioma(language) {
+    try { localStorage.setItem(STORAGE_LANGUAGE, language); } catch (_) {}
+}
+
+async function carregarIdiomaBackend() {
+    try {
+        if (window.pywebview?.api?.get_language) {
+            const response = await window.pywebview.api.get_language();
+            if (response?.language === 'en' || response?.language === 'pt') {
+                idiomaAtivo = response.language;
+                salvarIdioma(idiomaAtivo);
+                aplicarIdioma();
+            }
+        }
+    } catch (_) {}
+}
+
+async function sincronizarIdiomaBackend() {
+    try {
+        if (window.pywebview?.api?.set_language) {
+            await window.pywebview.api.set_language(idiomaAtivo);
+        }
+    } catch (_) {}
+}
+
+function aplicarIdioma() {
+    document.documentElement.lang = idiomaAtivo === 'en' ? 'en' : 'pt-BR';
+    document.title = t('pageTitle');
+    document.getElementById('appTitle').textContent = t('appTitle');
+    document.getElementById('btnConfig').title = t('settings');
+    document.getElementById('btnConfig').setAttribute('aria-label', t('settings'));
+    document.getElementById('configTitulo').textContent = t('settings');
+    document.getElementById('configSubtitulo').textContent = t('settingsSubtitle');
+    document.getElementById('configIdiomaLabel').textContent = t('language');
+    document.getElementById('btnFecharConfig').title = t('closeSettings');
+    document.getElementById('btnFecharConfig').setAttribute('aria-label', t('closeSettings'));
+    document.getElementById('idiomaPtNome').textContent = t('portuguese');
+    document.getElementById('idiomaPtSub').textContent = t('portugueseNative');
+    document.getElementById('idiomaEnNome').textContent = t('english');
+    document.getElementById('idiomaEnSub').textContent = t('englishNative');
+    document.getElementById('tabArquivo').textContent = `📄 ${t('files')}`;
+    document.getElementById('tabImagem').textContent = `🖼️ ${t('images')}`;
+    document.getElementById('idiomaPt').classList.toggle('ativo', idiomaAtivo === 'pt');
+    document.getElementById('idiomaEn').classList.toggle('ativo', idiomaAtivo === 'en');
+
+    const painel = document.getElementById('painelConversoes');
+    const aberto = !painel.classList.contains('oculto');
+    document.getElementById('linkConversoes').textContent = aberto ? t('hideConversions') : t('showConversions');
+    painel.innerHTML = construirPainelConversoes();
+    render();
+}
+
+async function definirIdioma(language) {
+    idiomaAtivo = language === 'en' ? 'en' : 'pt';
+    salvarIdioma(idiomaAtivo);
+    aplicarIdioma();
+    await sincronizarIdiomaBackend();
+}
+
+function abrirConfiguracoes() {
+    document.getElementById('modalConfig').classList.remove('oculto');
+}
+
+function fecharConfiguracoes() {
+    document.getElementById('modalConfig').classList.add('oculto');
+}
 
 function normalizaExt(ext) {
     if (ext === 'htm') return 'html';
     if (ext === 'yml') return 'yaml';
     return ext;
 }
+
 function nomeMetodo(origem, destino) {
     return `converter_${normalizaExt(origem)}_${normalizaExt(destino)}`;
 }
+
 function extensao(caminho) {
     const m = caminho.match(/\.([a-zA-Z0-9]+)$/);
     return m ? m[1].toLowerCase() : '';
 }
+
 function nomeArquivo(caminho) {
     return caminho.split(/[\\/]/).pop();
 }
-
-// ==================== Estado ====================
-let abaAtiva = 'arquivo';
-const estado = {
-    arquivo: { entrada: null, info: null, resultado: null, carregando: false },
-    imagem:  { entrada: null, info: null, resultado: null, carregando: false, acao: null },
-};
 
 function trocarAba(aba) {
     abaAtiva = aba;
@@ -361,6 +694,7 @@ function trocarComEntrada(aba, caminho, info) {
     estado[aba].entrada = caminho;
     estado[aba].info = info;
     estado[aba].resultado = null;
+    estado[aba].acao = null;
     trocarAba(aba);
 }
 
@@ -369,8 +703,8 @@ function resetar(aba) {
     render();
 }
 
-// ==================== Seleção de entrada ====================
 async function selecionarEntrada(aba) {
+    await sincronizarIdiomaBackend();
     const caminho = await window.pywebview.api.selecionar_arquivo(aba);
     if (!caminho) return;
 
@@ -382,16 +716,16 @@ async function selecionarEntrada(aba) {
     render();
 }
 
-// ==================== Execução ====================
 async function executarConversaoArquivo(destino) {
     const s = estado.arquivo;
     const origem = extensao(s.entrada);
     const metodo = nomeMetodo(origem, destino);
-
-    s.carregando = true; render();
+    s.carregando = true;
+    s.resultado = null;
+    render();
     try {
-        const r = await window.pywebview.api[metodo](s.entrada);
-        s.resultado = r;
+        await sincronizarIdiomaBackend();
+        s.resultado = await window.pywebview.api[metodo](s.entrada);
     } catch (e) {
         s.resultado = { sucesso: false, erro: String(e) };
     }
@@ -401,10 +735,12 @@ async function executarConversaoArquivo(destino) {
 
 async function executarConversaoImagem(formato) {
     const s = estado.imagem;
-    s.carregando = true; render();
+    s.carregando = true;
+    s.resultado = null;
+    render();
     try {
-        const r = await window.pywebview.api.converter_imagem(s.entrada, formato);
-        s.resultado = r;
+        await sincronizarIdiomaBackend();
+        s.resultado = await window.pywebview.api.converter_imagem(s.entrada, formato);
     } catch (e) {
         s.resultado = { sucesso: false, erro: String(e) };
     }
@@ -415,10 +751,12 @@ async function executarConversaoImagem(formato) {
 async function executarCompressao() {
     const s = estado.imagem;
     const qualidade = document.getElementById('inQualidade').value;
-    s.carregando = true; render();
+    s.carregando = true;
+    s.resultado = null;
+    render();
     try {
-        const r = await window.pywebview.api.comprimir_imagem(s.entrada, parseInt(qualidade));
-        s.resultado = r;
+        await sincronizarIdiomaBackend();
+        s.resultado = await window.pywebview.api.comprimir_imagem(s.entrada, parseInt(qualidade));
     } catch (e) {
         s.resultado = { sucesso: false, erro: String(e) };
     }
@@ -433,10 +771,14 @@ async function executarRedimensionamento() {
     const manter = document.getElementById('inManterProp').checked;
     if (!largura || !altura) return;
 
-    s.carregando = true; render();
+    s.carregando = true;
+    s.resultado = null;
+    render();
     try {
-        const r = await window.pywebview.api.redimensionar_imagem(s.entrada, parseInt(largura), parseInt(altura), manter);
-        s.resultado = r;
+        await sincronizarIdiomaBackend();
+        s.resultado = await window.pywebview.api.redimensionar_imagem(
+            s.entrada, parseInt(largura), parseInt(altura), manter
+        );
     } catch (e) {
         s.resultado = { sucesso: false, erro: String(e) };
     }
@@ -444,11 +786,21 @@ async function executarRedimensionamento() {
     render();
 }
 
-async function abrirArquivo(caminho) { await window.pywebview.api.abrir_arquivo(caminho); }
-async function abrirPasta(caminho) { await window.pywebview.api.abrir_pasta(caminho); }
+async function abrirArquivo(caminho) {
+    await window.pywebview.api.abrir_arquivo(caminho);
+}
 
-// ==================== Render ====================
-function fmtKB(bytes) { return (bytes / 1024).toFixed(1) + ' KB'; }
+async function abrirPasta(caminho) {
+    await window.pywebview.api.abrir_pasta(caminho);
+}
+
+function fmtKB(bytes) {
+    const value = Number(bytes || 0) / 1024;
+    return new Intl.NumberFormat(idiomaAtivo === 'en' ? 'en-US' : 'pt-BR', {
+        minimumFractionDigits: 1,
+        maximumFractionDigits: 1,
+    }).format(value) + ' KB';
+}
 
 function render() {
     document.getElementById('conteudo').innerHTML =
@@ -458,71 +810,69 @@ function render() {
 function renderTela(aba) {
     const s = estado[aba];
     const outraAba = aba === 'arquivo' ? 'imagem' : 'arquivo';
-
     let html = '';
 
-    // ---- Passo 1: Entrada ----
     html += `<div class="passo">
-        <div class="passo-titulo"><span class="passo-num">1</span> Entrada</div>`;
+        <div class="passo-titulo"><span class="passo-num">1</span> ${t('input')}</div>`;
 
     if (!s.entrada) {
         html += `<button class="btn-entrada" onclick="selecionarEntrada('${aba}')">
-            ${aba === 'arquivo' ? '📄 Selecionar arquivo' : '🖼️ Selecionar imagem'}
+            ${aba === 'arquivo' ? t('selectFile') : t('selectImage')}
         </button>`;
     } else {
         const ext = extensao(s.entrada);
         html += `<div class="arquivo-info">
             <div>
-                <div class="arquivo-info-nome">${nomeArquivo(s.entrada)}</div>
-                <div class="arquivo-info-meta">.${ext.toUpperCase()}${s.info && !s.info.erro ? ' · ' + s.info.tamanho_formatado : ''}</div>
+                <div class="arquivo-info-nome">${escapeHtml(nomeArquivo(s.entrada))}</div>
+                <div class="arquivo-info-meta">.${escapeHtml(ext.toUpperCase())}${s.info && !s.info.erro ? ' · ' + escapeHtml(s.info.tamanho_formatado) : ''}</div>
             </div>
-            <button class="btn-trocar" onclick="selecionarEntrada('${aba}')">Trocar</button>
+            <button class="btn-trocar" onclick="selecionarEntrada('${aba}')">${t('change')}</button>
         </div>`;
 
-        // Sugestão de trocar de aba se o tipo não bate com a aba atual
         const outroMapaTemExt = outraAba === 'imagem' ? FORMATOS_IMAGEM.includes(ext) : !!MAPA_ARQUIVO[ext];
-        const abaMapaTemExt = aba === 'imagem' ? FORMATOS_IMAGEM.includes(ext) : !!MAPA_ARQUIVO[ext];
+        const abaMapaTemExt = aba === 'imagem' ? FORMATOS_IMAGEM.includes(ext) : !!MAPA_ARQUIVO[normalizaExt(ext)];
         if (!abaMapaTemExt && outroMapaTemExt) {
+            const frase = outraAba === 'imagem' ? t('looksLikeImage') : t('looksLikeFile');
+            const link = outraAba === 'imagem' ? t('switchImages') : t('switchFiles');
             html += `<div class="sugestao-troca">
-                Isso parece ser ${outraAba === 'imagem' ? 'uma imagem' : 'um arquivo de documento/dados'}.
-                <a onclick="trocarComEntrada('${outraAba}', estado['${aba}'].entrada, estado['${aba}'].info)">Trocar para a aba ${outraAba === 'imagem' ? 'Imagens' : 'Arquivos'}</a>
+                ${frase}
+                <a onclick="trocarComEntrada('${outraAba}', estado['${aba}'].entrada, estado['${aba}'].info)">${link}</a>
             </div>`;
         }
     }
     html += `</div>`;
 
-    // ---- Passo 2: Saída ----
     html += `<div class="passo ${!s.entrada ? 'desabilitado' : ''}">
-        <div class="passo-titulo"><span class="passo-num">2</span> Saída</div>`;
+        <div class="passo-titulo"><span class="passo-num">2</span> ${t('output')}</div>
+        ${aba === 'arquivo' ? renderSaidaArquivo(s) : renderSaidaImagem(s)}
+    </div>`;
 
     if (s.carregando) {
-        html += `<div class="carregando">Convertendo…</div>`;
-    } else if (aba === 'arquivo') {
-        html += renderSaidaArquivo(s);
-    } else {
-        html += renderSaidaImagem(s);
+        html += `<div class="carregando">${t('processing')}</div>`;
     }
-    html += `</div>`;
 
-    // ---- Resultado ----
     if (s.resultado) {
         const r = s.resultado;
         if (r.sucesso) {
+            const reduction = r.reducao_percentual !== undefined
+                ? ` · ${escapeHtml(r.reducao_percentual)}% ${t('reduction')}`
+                : '';
+            const safePath = String(r.arquivo).replace(/\\/g, '\\\\').replace(/'/g, "\\'");
             html += `<div class="resultado">
-                <div class="resultado-titulo">✓ Convertido com sucesso</div>
-                <div class="resultado-detalhe">${nomeArquivo(r.arquivo)}${r.tamanho ? ' · ' + fmtKB(r.tamanho) : ''}${r.reducao_percentual !== undefined ? ' · redução de ' + r.reducao_percentual + '%' : ''}</div>
+                <div class="resultado-titulo">${t('conversionComplete')}</div>
+                <div class="resultado-detalhe">${escapeHtml(nomeArquivo(r.arquivo))}${r.tamanho ? ' · ' + fmtKB(r.tamanho) : ''}${reduction}</div>
                 <div class="resultado-acoes">
-                    <button class="btn-mini principal" onclick="abrirArquivo('${r.arquivo.replace(/\\/g, '\\\\')}')">Abrir arquivo</button>
-                    <button class="btn-mini" onclick="abrirPasta('${r.arquivo.replace(/\\/g, '\\\\')}')">Abrir pasta</button>
-                    <button class="btn-mini" onclick="resetar('${aba}')">Nova conversão</button>
+                    <button class="btn-mini principal" onclick="abrirArquivo('${safePath}')">${t('openFile')}</button>
+                    <button class="btn-mini" onclick="abrirPasta('${safePath}')">${t('openFolder')}</button>
+                    <button class="btn-mini" onclick="resetar('${aba}')">${t('newConversion')}</button>
                 </div>
             </div>`;
         } else {
             html += `<div class="resultado erro">
-                <div class="resultado-titulo">✗ Erro</div>
-                <div class="resultado-detalhe">${r.erro || 'Falha desconhecida'}</div>
+                <div class="resultado-titulo">${t('error')}</div>
+                <div class="resultado-detalhe">${escapeHtml(r.erro || t('unknownError'))}</div>
                 <div class="resultado-acoes">
-                    <button class="btn-mini" onclick="resetar('${aba}')">Tentar de novo</button>
+                    <button class="btn-mini" onclick="resetar('${aba}')">${t('tryAgain')}</button>
                 </div>
             </div>`;
         }
@@ -532,49 +882,45 @@ function renderTela(aba) {
 }
 
 function renderSaidaArquivo(s) {
-    if (!s.entrada) return `<div class="placeholder-saida">Selecione um arquivo de entrada primeiro.</div>`;
+    if (!s.entrada) return `<div class="placeholder-saida">${t('selectInputFileFirst')}</div>`;
     const ext = extensao(s.entrada);
     const destinos = MAPA_ARQUIVO[normalizaExt(ext)];
-    if (!destinos) {
-        return `<div class="placeholder-saida">Formato .${ext} não é suportado nesta aba.</div>`;
-    }
+    if (!destinos) return `<div class="placeholder-saida">${t('formatNotSupported', escapeHtml(ext))}</div>`;
     return `<div class="chips">
         ${destinos.map(d => `<button class="chip" onclick="executarConversaoArquivo('${d}')">→ ${d.toUpperCase()}</button>`).join('')}
     </div>`;
 }
 
 function renderSaidaImagem(s) {
-    if (!s.entrada) return `<div class="placeholder-saida">Selecione uma imagem de entrada primeiro.</div>`;
+    if (!s.entrada) return `<div class="placeholder-saida">${t('selectInputImageFirst')}</div>`;
     const ext = extensao(s.entrada);
-    if (!FORMATOS_IMAGEM.includes(ext)) {
-        return `<div class="placeholder-saida">Formato .${ext} não é suportado nesta aba.</div>`;
-    }
+    if (!FORMATOS_IMAGEM.includes(ext)) return `<div class="placeholder-saida">${t('formatNotSupported', escapeHtml(ext))}</div>`;
 
     let html = `<div class="chips">`;
     FORMATOS_IMAGEM.filter(f => f !== ext).forEach(f => {
         html += `<button class="chip" onclick="executarConversaoImagem('${f}')">→ ${f.toUpperCase()}</button>`;
     });
-    html += `<button class="chip secundario ${s.acao === 'comprimir' ? 'ativo' : ''}" onclick="abrirAcaoImagem('comprimir')">Comprimir</button>`;
-    html += `<button class="chip secundario ${s.acao === 'redimensionar' ? 'ativo' : ''}" onclick="abrirAcaoImagem('redimensionar')">Redimensionar</button>`;
+    html += `<button class="chip secundario ${s.acao === 'comprimir' ? 'ativo' : ''}" onclick="abrirAcaoImagem('comprimir')">${t('compress')}</button>`;
+    html += `<button class="chip secundario ${s.acao === 'redimensionar' ? 'ativo' : ''}" onclick="abrirAcaoImagem('redimensionar')">${t('resize')}</button>`;
     html += `</div>`;
 
     if (s.acao === 'comprimir') {
         html += `<div class="painel-param">
             <div class="campo">
-                <label>Qualidade: <span id="qualidadeValor">85</span></label>
+                <label>${t('quality')}: <span id="qualidadeValor">85</span></label>
                 <input type="range" id="inQualidade" min="1" max="100" value="85"
                     oninput="document.getElementById('qualidadeValor').textContent = this.value">
             </div>
-            <button class="btn-executar" onclick="executarCompressao()">Comprimir imagem</button>
+            <button class="btn-executar" onclick="executarCompressao()">${t('compressImage')}</button>
         </div>`;
     } else if (s.acao === 'redimensionar') {
         html += `<div class="painel-param">
             <div class="campo-row">
-                <div class="campo"><label>Largura (px)</label><input type="number" id="inLargura" min="1" placeholder="ex: 800"></div>
-                <div class="campo"><label>Altura (px)</label><input type="number" id="inAltura" min="1" placeholder="ex: 600"></div>
+                <div class="campo"><label>${t('width')}</label><input type="number" id="inLargura" min="1" placeholder="${t('exampleWidth')}"></div>
+                <div class="campo"><label>${t('height')}</label><input type="number" id="inAltura" min="1" placeholder="${t('exampleHeight')}"></div>
             </div>
-            <div class="checkbox-row"><input type="checkbox" id="inManterProp" checked> <label for="inManterProp">Manter proporção</label></div>
-            <button class="btn-executar" onclick="executarRedimensionamento()">Redimensionar imagem</button>
+            <div class="checkbox-row"><input type="checkbox" id="inManterProp" checked> <label for="inManterProp">${t('keepAspect')}</label></div>
+            <button class="btn-executar" onclick="executarRedimensionamento()">${t('resizeImage')}</button>
         </div>`;
     }
     return html;
@@ -585,34 +931,38 @@ function abrirAcaoImagem(acao) {
     render();
 }
 
-// ==================== Painel "todas as conversões disponíveis" ====================
-// Gerado a partir do próprio MAPA_ARQUIVO/FORMATOS_IMAGEM (não é lista fixa
-// separada), então não tem como ficar desatualizado se um formato for adicionado.
 function construirPainelConversoes() {
-    const aliases = new Set(['htm', 'yml']); // já cobertos por html/yaml
+    const aliases = new Set(['htm', 'yml']);
     const linhasArquivo = Object.entries(MAPA_ARQUIVO)
         .filter(([origem]) => !aliases.has(origem))
         .map(([origem, destinos]) =>
             `<div class="linha-conversao"><b>${origem.toUpperCase()}</b> → ${destinos.map(d => d.toUpperCase()).join(', ')}</div>`
         ).join('');
 
-    const linhaImagem = `<div class="linha-conversao"><b>${FORMATOS_IMAGEM.map(f => f.toUpperCase()).join(' / ')}</b> → entre si, + comprimir e redimensionar</div>`;
+    const linhaImagem = `<div class="linha-conversao"><b>${FORMATOS_IMAGEM.map(f => f.toUpperCase()).join(' / ')}</b> → ${t('imageConversions')}</div>`;
 
     return `
-        <div class="grupo-conversoes"><h4>Documentos e dados</h4>${linhasArquivo}</div>
-        <div class="grupo-conversoes"><h4>Imagens</h4>${linhaImagem}</div>
+        <div class="grupo-conversoes"><h4>${t('documentsData')}</h4>${linhasArquivo}</div>
+        <div class="grupo-conversoes"><h4>${t('imagesGroup')}</h4>${linhaImagem}</div>
     `;
 }
 
 function toggleConversoes() {
     const painel = document.getElementById('painelConversoes');
     const aberto = painel.classList.toggle('oculto') === false;
-    document.getElementById('linkConversoes').textContent =
-        aberto ? 'Ocultar conversões disponíveis' : 'Ver todas as conversões disponíveis';
+    document.getElementById('linkConversoes').textContent = aberto ? t('hideConversions') : t('showConversions');
 }
 
-document.getElementById('painelConversoes').innerHTML = construirPainelConversoes();
-render();
+document.getElementById('modalConfig').addEventListener('click', event => {
+    if (event.target.id === 'modalConfig') fecharConfiguracoes();
+});
+
+document.addEventListener('keydown', event => {
+    if (event.key === 'Escape') fecharConfiguracoes();
+});
+
+window.addEventListener('pywebviewready', carregarIdiomaBackend);
+aplicarIdioma();
 </script>
 </body>
 </html>
