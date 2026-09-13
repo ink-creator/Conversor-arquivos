@@ -3,6 +3,7 @@ import os
 import sys
 import webview
 from pathlib import Path
+from webview.dom import DOMEventHandler
 
 from utils.constants import INDEX_FILE, WINDOW_WIDTH, WINDOW_HEIGHT, WINDOW_MIN_WIDTH, WINDOW_MIN_HEIGHT
 from utils.logger import setup_logger
@@ -10,6 +11,7 @@ from utils.helpers import get_file_info
 from converters.document import DocumentConverter
 from converters.data import DataConverter
 from converters.image import ImageConverter
+from converters.batch import BatchConverter
 
 logger = setup_logger(__name__)
 
@@ -60,6 +62,7 @@ def _save_language(language):
 doc_converter = DocumentConverter()
 data_converter = DataConverter()
 image_converter = ImageConverter()
+batch_converter = BatchConverter(doc_converter, data_converter, image_converter)
 
 
 EN_ERROR_EXACT = {
@@ -71,6 +74,12 @@ EN_ERROR_EXACT = {
     "Dimensões devem ser números inteiros": "Dimensions must be integers",
     "Qualidade deve estar entre 1 e 100": "Quality must be between 1 and 100",
     "Qualidade deve ser número": "Quality must be a number",
+    "Operação em lote não suportada": "Unsupported batch operation",
+    "Operação em lote inválida": "Invalid batch operation",
+    "Política de conflito inválida": "Invalid conflict policy",
+    "Formato de saída não suportado": "Unsupported output format",
+    "Conversão não suportada": "Unsupported conversion",
+    "Esta operação aceita apenas imagens": "This operation only accepts images",
     "JSON vazio": "JSON is empty",
     "Planilha vazia": "Spreadsheet is empty",
 }
@@ -155,6 +164,24 @@ class Api:
             webview.OPEN_DIALOG, allow_multiple=False, file_types=file_types
         )
         return resultado[0] if resultado else None
+
+    def selecionar_arquivos(self, categoria="arquivo"):
+        """Open the native multi-file picker and always return a list."""
+        filters = self._filters()
+        fallback = ("All files (*.*)",) if self._language == "en" else ("Todos os arquivos (*.*)",)
+        file_types = filters.get(categoria, fallback)
+        resultado = window.create_file_dialog(
+            webview.OPEN_DIALOG, allow_multiple=True, file_types=file_types
+        )
+        if isinstance(resultado, (str, Path)):
+            resultado = [resultado]
+        return [str(path) for path in (resultado or [])]
+
+    def selecionar_pasta(self):
+        resultado = window.create_file_dialog(webview.FOLDER_DIALOG)
+        if isinstance(resultado, (str, Path)):
+            return str(resultado)
+        return str(resultado[0]) if resultado else None
 
     # ==================== DOCUMENTS / DOCUMENTOS ====================
 
@@ -340,6 +367,22 @@ class Api:
             info["erro"] = self._error(info["erro"])
         return info
 
+    def obter_info_arquivos(self, arquivos):
+        return [self.obter_info_arquivo(arquivo) for arquivo in (arquivos or [])]
+
+    def converter_item_lote(self, arquivo, operacao, pasta_saida=None, conflito="renomear"):
+        """Convert one queue item; the frontend calls this once per visible row."""
+        try:
+            resultado = batch_converter.convert_item(
+                arquivo, operacao, pasta_saida=pasta_saida, conflito=conflito
+            )
+            if not resultado.get("ignorado"):
+                self.last_output = resultado.get("arquivo")
+            return resultado
+        except Exception as erro:
+            logger.error(f"Batch conversion / conversão em lote: {erro}")
+            return {"sucesso": False, "erro": self._error(erro)}
+
 
 # ==================== INITIALIZATION ====================
 
@@ -354,6 +397,32 @@ window = webview.create_window(
     min_size=(WINDOW_MIN_WIDTH, WINDOW_MIN_HEIGHT),
     resizable=True,
 )
+
+
+def _receber_arquivos_arrastados(event):
+    arquivos = event.get("dataTransfer", {}).get("files", [])
+    caminhos = [
+        arquivo.get("pywebviewFullPath")
+        for arquivo in arquivos
+        if arquivo.get("pywebviewFullPath")
+    ]
+    if caminhos:
+        window.run_js(
+            f"receberArquivosSoltos({json.dumps(caminhos, ensure_ascii=False)})"
+        )
+
+
+def _configurar_arrastar_e_soltar():
+    conteudo = window.dom.get_element("#conteudo")
+    if conteudo:
+        conteudo.events.drop += DOMEventHandler(
+            _receber_arquivos_arrastados,
+            prevent_default=True,
+            stop_propagation=True,
+        )
+
+
+window.events.loaded += _configurar_arrastar_e_soltar
 
 
 def ao_iniciar(window):

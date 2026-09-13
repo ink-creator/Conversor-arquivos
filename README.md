@@ -139,6 +139,13 @@ Supported image formats include:
 
 Images can be converted between supported formats directly from the application.
 
+### Batch conversion
+
+Select multiple compatible files, choose one output conversion, and process them as
+a visible queue. Each row shows whether it is waiting, being processed, completed,
+skipped, or failed. A batch can be saved beside the originals or in a selected
+output folder, with **Rename**, **Overwrite**, and **Skip** conflict policies.
+
 ---
 
 ## Image Tools
@@ -166,7 +173,7 @@ Images can also be resized by specifying:
 The interface is designed around a short workflow:
 
 ```text
-Select file
+Select one or more files
      ↓
 Detect format
      ↓
@@ -174,12 +181,14 @@ Show compatible outputs
      ↓
 Choose conversion
      ↓
-Convert automatically
+Choose output folder and conflict policy
+     ↓
+Start and follow the queue
      ↓
 Open file or folder
 ```
 
-There is no separate confirmation step after choosing the output format.
+The queue runs sequentially and keeps processing other items when one file fails.
 
 ---
 
@@ -207,11 +216,14 @@ When a conversion finishes successfully, the application provides shortcuts to:
 - Open the folder containing it
 - Start a new conversion
 
-Converted files are saved next to the original file.
+By default, converted files are saved next to each original file. A shared output
+folder can be selected before starting the queue.
 
 Existing files are not intentionally overwritten.
 
-Generated filenames use suffixes such as:
+Batch format conversions keep the original base name and use the new extension;
+the **Rename** policy adds a numeric suffix when needed. Image tools use suffixes
+such as:
 
 ```text
 _converted
@@ -462,6 +474,14 @@ Os formatos de imagem suportados incluem:
 
 As imagens podem ser convertidas entre os formatos disponíveis diretamente pela aplicação.
 
+### Conversão em lote
+
+Selecione vários arquivos compatíveis, escolha uma única saída e acompanhe o
+processamento em uma fila. Cada item mostra se está aguardando, processando,
+concluído, ignorado ou com erro. O lote pode ser salvo ao lado dos originais ou em
+uma pasta escolhida, com as políticas de conflito **Renomear**, **Sobrescrever** e
+**Ignorar**.
+
 ---
 
 ## Ferramentas de Imagem
@@ -489,7 +509,7 @@ Também é possível redimensionar imagens definindo:
 A interface foi pensada para utilizar poucos passos:
 
 ```text
-Selecionar arquivo
+Selecionar um ou mais arquivos
        ↓
 Detectar formato
        ↓
@@ -497,12 +517,15 @@ Mostrar saídas compatíveis
        ↓
 Escolher conversão
        ↓
-Converter automaticamente
+Escolher pasta de saída e política de conflito
+       ↓
+Iniciar e acompanhar a fila
        ↓
 Abrir arquivo ou pasta
 ```
 
-Não existe um botão adicional de confirmação após selecionar o formato de saída.
+A fila é executada em sequência e continua processando os outros itens quando um
+arquivo apresenta erro.
 
 ---
 
@@ -530,11 +553,14 @@ Quando uma conversão termina com sucesso, a aplicação oferece atalhos para:
 - Abrir a pasta onde ele foi salvo
 - Iniciar uma nova conversão
 
-Os arquivos convertidos são salvos ao lado do arquivo original.
+Por padrão, os arquivos convertidos são salvos ao lado de cada arquivo original.
+Também é possível escolher uma pasta única antes de iniciar a fila.
 
 Os arquivos existentes não são sobrescritos intencionalmente.
 
-Dependendo da operação, o nome recebe sufixos como:
+Nas conversões de formato em lote, o nome-base é preservado e apenas a extensão é
+trocada; a política **Renomear** adiciona um número quando necessário. As ferramentas
+de imagem usam sufixos como:
 
 ```text
 _converted
